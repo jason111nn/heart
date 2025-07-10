@@ -225,10 +225,10 @@ gl.useProgram(program);
 
 //Set up rectangle covering entire canvas 
 var vertexData = new Float32Array([
-  -1.0,  1.0, 	// top left
-  -1.0, -1.0, 	// bottom left
-   1.0,  1.0, 	// top right
-   1.0, -1.0, 	// bottom right
+  -1.0,  1.0,
+  -1.0, -1.0,
+   1.0,  1.0,
+   1.0, -1.0,
 ]);
 
 //Create vertex buffer
@@ -241,34 +241,53 @@ var positionHandle = getAttribLocation(program, 'position');
 
 gl.enableVertexAttribArray(positionHandle);
 gl.vertexAttribPointer(positionHandle,
-  2, 				// position is a vec2 (2 values per component)
-  gl.FLOAT, // each component is a float
-  false, 		// don't normalize values
-  2 * 4, 		// two 4 byte float components per vertex (32 bit float is 4 bytes)
-  0 				// how many bytes inside the buffer to start from
+  2,
+  gl.FLOAT,
+  false,
+  2 * 4,
+  0
   );
 
-//Set uniform handle
 var timeHandle = getUniformLocation(program, 'time');
 var widthHandle = getUniformLocation(program, 'width');
 var heightHandle = getUniformLocation(program, 'height');
 
 gl.uniform1f(widthHandle, window.innerWidth);
 gl.uniform1f(heightHandle, window.innerHeight);
+var overlay = document.createElement('canvas');
+document.body.appendChild(overlay);
+overlay.style.position = 'absolute';
+overlay.style.left = '0';
+overlay.style.top = '0';
+overlay.style.pointerEvents = 'none';
+
+function resizeOverlay() {
+  overlay.width = window.innerWidth;
+  overlay.height = window.innerHeight;
+}
+resizeOverlay();
+window.addEventListener('resize', resizeOverlay);
+
+var ctx = overlay.getContext('2d');
+ctx.textAlign = 'center';
+ctx.textBaseline = 'middle';
+ctx.font = 'bold 8vw Arial';
+ctx.shadowColor = 'white';
+ctx.shadowBlur = 50;
+
+ctx.fillStyle = '#ffffff';
+ctx.fillText('LOVE', overlay.width / 2, overlay.height / 2);
 
 var lastFrame = Date.now();
 var thisFrame;
 
 function draw(){
 	
-  //Update time
 	thisFrame = Date.now();
   time += (thisFrame - lastFrame)/1000;	
 	lastFrame = thisFrame;
 
-	//Send uniforms to program
   gl.uniform1f(timeHandle, time);
-  //Draw a triangle strip connecting vertices 0-4
   gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
   requestAnimationFrame(draw);
